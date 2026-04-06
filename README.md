@@ -5,11 +5,11 @@ A production-ready, event-driven cloud pipeline that automatically detects objec
 ---
 
 ## 📌 Project Overview
-This project automates image metadata extraction and visual annotation. When a user uploads a raw image to an S3 bucket, a Lambda function is triggered to:
-1. Analyze the image using **Amazon Rekognition**.
-2. Draw pixel-perfect bounding boxes using **Pillow**.
-3. Store sanitized metadata in **Amazon DynamoDB**.
-4. Notify the developer via **Amazon SNS** if any processing errors occur.
+This project automates image metadata extraction and visual annotation. When a user uploads a raw image to a source S3 bucket, a Lambda function is triggered to:
+1. **Analyze** the image using **Amazon Rekognition**.
+2. **Annotate** the image with pixel-perfect bounding boxes using **Pillow**.
+3. **Persist** sanitized metadata in **Amazon DynamoDB**.
+4. **Notify** the developer via **Amazon SNS** if any processing errors occur.
 
 ### 🏗️ Architecture
 
@@ -33,16 +33,52 @@ This project automates image metadata extraction and visual annotation. When a u
 
 ## 🚀 Key Features
 * **Event-Driven & Scalable:** Zero server management; scales instantly with upload volume.
-* **Smart Annotation:** Dynamically scales font sizes and bounding boxes based on image resolution (4K vs. 720p).
-* **Data Integrity:** Implements a recursive `float_to_decimal` helper to handle AWS Rekognition's float outputs for DynamoDB compatibility.
+* **Smart Annotation:** Dynamically scales font sizes and bounding boxes based on image resolution.
+* **Data Integrity:** Implemented a recursive `float_to_decimal` helper to handle AWS Rekognition's float outputs for DynamoDB compatibility.
 * **Observability:** Integrated `try-except` blocks with SNS publishing for instant "Pipeline Failure" alerts.
 
 ---
 
-## 🔧 Setup & Infrastructure
+## 📦 Infrastructure & Dependencies
 
-### 1. Lambda Layer
-This project utilizes the **Pillow** library as a Lambda Layer. 
-* To build the layer compatible with the AWS Linux environment:
-  ```bash
-  pip install --platform manylinux2014_x86_64 --target=python pillow
+### AWS Lambda Layers
+Since **Pillow** is not part of the standard Python runtime in AWS Lambda, it was implemented using a custom Lambda Layer to keep the deployment package lightweight.
+
+**Layer Configuration:**
+* **Library:** Pillow (PIL)
+* **Runtime:** Python 3.14
+* **Pillow Layer ARN:** `arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p314-Pillow:1`
+  *(Note: Ensure the ARN matches your specific region and Python version compatibility)*
+
+---
+
+## 🔐 IAM Permissions & Security
+The Lambda Execution Role follows the **Principle of Least Privilege** with the following permissions:
+
+* **S3:** `s3:GetObject` (Source), `s3:PutObject` (Output).
+* **Rekognition:** `rekognition:DetectLabels` (AI Analysis).
+* **DynamoDB:** `dynamodb:PutItem` (Metadata Storage).
+* **SNS:** `sns:Publish` (Error Notifications).
+
+---
+
+## 🔧 Setup
+1. **Environment Variables:**
+   * `OUTPUT_BUCKET`: Name of your destination S3 bucket.
+   * `SNS_TOPIC_ARN`: The ARN of your Amazon SNS Topic.
+2. **Deployment:** Ensure the Pillow Layer is attached to the function before execution.
+
+---
+
+## 📸 Demo
+| Raw Input (S3) | AI Annotated Output (S3) |
+| :--- | :--- |
+| ![Before](./assets/before.jpg) | ![After](./assets/after.jpg) |
+
+---
+
+## 👨‍💻 Author
+**Sofiene**
+* 🎓 Software Engineering (MedTech) & BBA (HEC Montréal)
+* ☁️ AWS Certified Cloud Practitioner
+* 📍 Montréal, QC
