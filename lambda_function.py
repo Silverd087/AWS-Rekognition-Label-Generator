@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     try:
         REGION = event['Records'][0]['awsRegion']
         BUCKET = event['Records'][0]['s3']['bucket']['name']
-        OUTPUT_BUCKET = "sofiene-rekognition-project-output-847008502735-us-east-1-an"
+        OUTPUT_BUCKET = os.environ.get("OUTPUT_BUCKET",)
         OBJECT_KEY = event['Records'][0]['s3']['object']['key']
         rekognition = boto3.client('rekognition',region_name=REGION)
 
@@ -99,7 +99,8 @@ def lambda_handler(event, context):
 
         try:
             dynamodb = boto3.resource('dynamodb',region_name=REGION)
-            table = dynamodb.Table('ImageLabels')
+            DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE")
+            table = dynamodb.Table(DYNAMODB_TABLE)
             table.put_item(Item={
                 'ImageID':OBJECT_KEY,
                 'Labels':cleaned_labels,
@@ -115,7 +116,8 @@ def lambda_handler(event, context):
     except Exception as e:
         print(f"Unexpected Error: {e}")
         sns = boto3.client('sns')
-        sns.publish(TopicArn="arn:aws:sns:us-east-1:847008502735:ImageProcessingErrorAlerts",Subject="Pipeline Error:Image labeling",Message=f"🚨 Lambda Error in Image Pipeline!\n\n Error: {str(e)}\n" )
+        SNS_TOPIC_ARN = os.environ.get("SNS_TOPIC_ARN")
+        sns.publish(TopicArn=SNS_TOPIC_ARN,Subject="Pipeline Error:Image labeling",Message=f"🚨 Lambda Error in Image Pipeline!\n\n Error: {str(e)}\n" )
 
 
         return {

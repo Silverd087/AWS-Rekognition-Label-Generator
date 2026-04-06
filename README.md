@@ -12,7 +12,7 @@ This project automates image metadata extraction and visual annotation. When a u
 4. **Notify** the developer via **Amazon SNS** if any processing errors occur.
 
 ### 🏗️ Architecture
-
+![Architecture](./assets/architecture-diagram.png)
 
 1. **Trigger:** S3 Bucket (`s3:ObjectCreated:*` event).
 2. **Compute:** AWS Lambda (Python 3.14).
@@ -27,15 +27,16 @@ This project automates image metadata extraction and visual annotation. When a u
 * **Language:** Python 3.14
 * **Cloud Provider:** Amazon Web Services (AWS)
 * **SDK:** Boto3
-* **Libraries:** Pillow (PIL), Decimal, IO, JSON.
+* **Libraries:** Pillow (PIL), Decimal, IO, JSON, OS.
 
 ---
 
 ## 🚀 Key Features
 * **Event-Driven & Scalable:** Zero server management; scales instantly with upload volume.
+* **Decoupled Configuration:** Utilizes **AWS Environment Variables** for resource ARNs, ensuring the codebase is portable and secure across different deployment stages.
 * **Smart Annotation:** Dynamically scales font sizes and bounding boxes based on image resolution.
 * **Data Integrity:** Implemented a recursive `float_to_decimal` helper to handle AWS Rekognition's float outputs for DynamoDB compatibility.
-* **Observability:** Integrated `try-except` blocks with SNS publishing for instant "Pipeline Failure" alerts.
+* **Observability:** Integrated `try-except` blocks with **SNS** publishing for instant "Pipeline Failure" alerts.
 
 ---
 
@@ -46,9 +47,7 @@ Since **Pillow** is not part of the standard Python runtime in AWS Lambda, it wa
 
 **Layer Configuration:**
 * **Library:** Pillow (PIL)
-* **Runtime:** Python 3.14
-* **Pillow Layer ARN:** `arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p314-Pillow:1`
-  *(Note: Ensure the ARN matches your specific region and Python version compatibility)*
+* **Pillow Layer ARN:** `arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p312-Pillow:2` 
 
 ---
 
@@ -62,11 +61,14 @@ The Lambda Execution Role follows the **Principle of Least Privilege** with the 
 
 ---
 
-## 🔧 Setup
-1. **Environment Variables:**
-   * `OUTPUT_BUCKET`: Name of your destination S3 bucket.
-   * `SNS_TOPIC_ARN`: The ARN of your Amazon SNS Topic.
-2. **Deployment:** Ensure the Pillow Layer is attached to the function before execution.
+## 🔧 Setup & Environment Variables
+To run this project, configure the following **Environment Variables** in your Lambda function:
+
+| Key | Description |
+| :--- | :--- |
+| `OUTPUT_BUCKET` | The name of your destination S3 bucket for annotated images. |
+| `SNS_TOPIC_ARN` | The ARN of your Amazon SNS Topic for error alerts. |
+| `DYNAMODB_TABLE` | The name of your DynamoDB table (Default: `ImageLabels`). |
 
 ---
 
