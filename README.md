@@ -73,7 +73,7 @@ The Lambda Execution Role follows the **Principle of Least Privilege** with the 
 ## 📸 Demo
 | Raw Input (S3) | AI Annotated Output (S3) |
 | :--- | :--- |
-| ![Before](./assets/before.jpg) | ![After](./assets/after.jpg) |
+| ![Before](./assets/before.png) | ![After](./assets/after.jpg) |
 
 ---
 
