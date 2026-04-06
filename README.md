@@ -12,7 +12,7 @@ This project automates image metadata extraction and visual annotation. When a u
 4. **Notify** the developer via **Amazon SNS** if any processing errors occur.
 
 ### 🏗️ Architecture
-![Architecture](./assets/architecture-diagram.png)
+![Architecture](./assets/architecture-diagram.jpg)
 
 1. **Trigger:** S3 Bucket (`s3:ObjectCreated:*` event).
 2. **Compute:** AWS Lambda (Python 3.14).
